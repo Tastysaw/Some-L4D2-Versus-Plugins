@@ -1,0 +1,27 @@
+"Phrases"
+{
+    "HordeStart"
+    {
+        "#format" "{1:d}"
+        "chi" "{green}[尸潮]{olive} 尸潮事件{red} 开始 {olive}|{olive}已生成普通感染者：{red}{1}{olive} "
+        "en" "{green}[Horde]{olive} Horde{red} started {olive}|{olive}currently accepted: {red}{1}{olive}"
+    }
+    "HordeEnd"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "{green}[尸潮]{olive} 尸潮事件{red} 结束 {olive}|{olive} 预计生成普通感染者：{red}{1}{olive} | 实际生成普通感染者：{red}{2}{olive}"
+        "en" "{green}[Horde]{olive} Horde{red} ended {olive}|{olive} accepted: {red}{1}{olive} | actually created: {red}{2}{olive}"
+    }
+    "AlarmHordeStartPlayer"
+    {
+        "#format" "{1:N},{2:d}"
+        "chi" "{green}[尸潮]{olive} {1}{olive}{red} 触发警报车{olive}|{olive} 预计生成普通感染者：{red}{2}{olive} 只"
+        "en" "{green}[Horde]{olive} {1}{olive}{red} triggered an alarm car{olive}|{olive} currently accepted: {red}{2}{olive}"
+    }
+    "AlarmHordeEnd"
+    {
+        "#format" "{1:d},{2:d}"
+        "chi" "{green}[尸潮]{olive} 警报车尸潮{red} 结束 {olive}|{olive} 预计生成普通感染者：{red}{1}{olive} | {olive}实际生成普通感染者：{red}{2}{olive}"
+        "en" "{green}[Horde]{olive} Alarm-car horde {red}ended{olive}|{olive} accepted: {red}{1}{olive} | {olive}actually created: {red}{2}{olive}"
+    }
+}
