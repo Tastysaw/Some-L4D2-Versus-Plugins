@@ -38,8 +38,8 @@ float g_fVictimLastShove[MAXPLAYERS + 1][MAXPLAYERS + 1];
 public Plugin myinfo =
 {
     name = "L4D2 Witch Crown + Jockey Air Shove Notify",
-    author = "Ts & UUZ",
-    description = "For Zonemod Witch and Jockey",
+    author = "Ts UUZ",
+    description = "Reports Witch crown/draw-crown kills and airborne Jockey shove-stops.",
     version = PLUGIN_VERSION,
     url = ""
 };
@@ -192,6 +192,7 @@ public Action OnTakeDamageByWitch(
         data[MAXPLAYERS + view_as<int>(WTCH_HEALTH)] = GetWitchHealth();
     }
 
+    // Witch has already hit a survivor: no longer a clean crown.
     data[MAXPLAYERS + view_as<int>(WTCH_GOTSLASH)] = 1;
     g_WitchTrie.SetArray(key, data, sizeof(data));
 
@@ -223,6 +224,8 @@ public void OnTakeDamagePost_Witch(
         data[attacker] += iDamage;
         data[MAXPLAYERS + view_as<int>(WTCH_HEALTH)] -= iDamage;
 
+        // Damage pellets within 0.1s are treated as one shotgun blast,
+        // matching the reference skill-detect implementation.
         if (g_fWitchShotStart[attacker] == 0.0
             || (GetGameTime() - g_fWitchShotStart[attacker]) > SHOTGUN_BLAST_TIME)
         {
@@ -237,6 +240,7 @@ public void OnTakeDamagePost_Witch(
     }
     else
     {
+        // Non-survivor / environmental chip damage.
         data[0] += RoundToFloor(damage);
     }
 
@@ -271,11 +275,15 @@ void CheckWitchCrown(int witch, int attacker, bool oneShot)
 
     int witchHealth = GetWitchHealth();
 
+    // The event's "oneshot" flag is used as a safeguard, just like the
+    // reference implementation, because shotgun damage callbacks can be late.
     if (oneShot)
     {
         data[MAXPLAYERS + view_as<int>(WTCH_CROWNTYPE)] = 1;
     }
 
+    // If Witch already hit someone, or the killing blast was not recognized
+    // as buckshot, do not report crown/draw-crown.
     if (data[MAXPLAYERS + view_as<int>(WTCH_GOTSLASH)]
         || !data[MAXPLAYERS + view_as<int>(WTCH_CROWNTYPE)])
     {
@@ -286,6 +294,9 @@ void CheckWitchCrown(int witch, int attacker, bool oneShot)
     int crownShot = data[MAXPLAYERS + view_as<int>(WTCH_CROWNSHOT)];
     int chipDamage = 0;
 
+    // Clean crown / 秒杀:
+    // Witch was not startled before the kill, and the final shotgun blast
+    // was enough to kill a full-health Witch (or the event says oneshot).
     if (!data[MAXPLAYERS + view_as<int>(WTCH_STARTLED)]
         && (oneShot || crownShot >= witchHealth))
     {
@@ -315,6 +326,9 @@ void CheckWitchCrown(int witch, int attacker, bool oneShot)
         return;
     }
 
+    // Draw crown / 引秒:
+    // Witch was already startled/chipped, but the final shotgun blast
+    // still reached the configured draw-crown threshold.
     int drawThreshold = g_cvDrawCrownDamage.IntValue;
 
     if (crownShot >= drawThreshold)
@@ -343,6 +357,7 @@ void CheckWitchCrown(int witch, int attacker, bool oneShot)
             realFinalShot = 1;
         }
 
+        // Preserve the reference plugin's re-check after removing fake/overkill damage.
         if (realFinalShot >= drawThreshold)
         {
             CPrintToChatAll(
@@ -388,7 +403,7 @@ public Action Event_PlayerShoved(Event event, const char[] name, bool dontBroadc
     }
 
     CPrintToChatAll(
-        "{green}★★{olive} %N {green}推停了空中的 {olive}%N (Jockey)",
+        "{green}★★{olive} %N {blue}推停了空中的 {olive}%N (Jockey)",
         attacker,
         victim
     );
