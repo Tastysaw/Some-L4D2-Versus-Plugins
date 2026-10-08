@@ -11,3 +11,4 @@
  - [l4d2_tank_si_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_tank_si_stats) 统计克局其他特感造成伤害量（好像仿照自0721服？）
  - [l4d2_round_control_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_round_control_stats) 统计生还被控次数
  - [pause](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/pause) Zonemod 暂停插件增加一个玩家掉线重连完毕后自动强制解除暂停（仿照自Love平台）
+ - [l4d2_rock_trail](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_rock_trail)改编插件，仅显示坦克石头轨迹
