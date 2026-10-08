@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "1.3.0"
+#define PLUGIN_VERSION "1.3.1"
 
 enum StatType
 {
@@ -20,6 +20,7 @@ enum StatType
 
 int g_Stats[MAXPLAYERS + 1][Stat_Count];
 bool g_bPrinted;
+bool g_bPrintPending;
 int g_RoundSerial;
 int g_EndCount;
 char g_EndNames[4][MAX_NAME_LENGTH];
@@ -45,6 +46,7 @@ public void OnPluginStart()
     g_cvGameMode = FindConVar("mp_gamemode");
     HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);
     HookEvent("round_end", Event_RoundEnd, EventHookMode_PostNoCopy);
+    HookEvent("mission_lost", Event_RoundEnd, EventHookMode_PostNoCopy);
     HookEvent("lunge_pounce", Event_Hunter);
     
     g_HasPullEvent = HookEventEx("tongue_pull_started", Event_Smoker);
@@ -60,6 +62,11 @@ public void OnPluginStart()
 public void OnMapStart()
 {
     ResetRound();
+}
+
+public void OnMapEnd()
+{
+    PrintPendingRoundStats();
 }
 
 public void OnClientDisconnect(int client)
@@ -81,6 +88,9 @@ void ClearClient(int client)
 
 void ResetRound()
 {
+    // A fast half change must not erase an end-of-round snapshot before
+    // its delayed print runs. Old timers are rejected by the round serial.
+    PrintPendingRoundStats();
     g_bPrinted = false;
     g_RoundSerial++;
     g_EndCount = 0;
@@ -218,6 +228,18 @@ public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
+    FinishRound();
+}
+
+// Optional forward: provides a versus-specific end signal when Left4DHooks
+// is installed. No new include or required native dependency is introduced.
+public void L4D2_OnEndVersusModeRound_Post()
+{
+    FinishRound();
+}
+
+void FinishRound()
+{
     if (g_bPrinted || !IsVersus())
         return;
 
@@ -234,6 +256,7 @@ public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
             g_EndStats[slot][stat] = g_Stats[client][stat];
     }
 
+    g_bPrintPending = true;
     CreateTimer(2.0, Timer_PrintRoundStats, g_RoundSerial, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -242,9 +265,19 @@ public Action Timer_PrintRoundStats(Handle timer, any serial)
     if (serial != g_RoundSerial)
         return Plugin_Stop;
 
+    PrintPendingRoundStats();
+    return Plugin_Stop;
+}
+
+void PrintPendingRoundStats()
+{
+    if (!g_bPrintPending)
+        return;
+
+    g_bPrintPending = false;
     for (int slot = 0; slot < g_EndCount; slot++)
     {
-        CPrintToChatAll("{green}%s: {default}[{red}被扑{olive} %d {default}][{red}被拉{olive} %d {default}][{red}被骑{olive} %d {default}][{red}被撞{olive} %d {default}][{red}吃拳{olive} %d {default}][{red}吃饼{olive} %d {default}]",
+        CPrintToChatAll("{green}%s: {default}[{red}被扑 {olive}%d{default} ][{red}被拉 {olive}%d{default} ][{red}被骑 {olive}%d{default} ][{red}被撞 {olive}%d{default} ][{red}吃拳 {olive}%d{default} ][{red}吃饼 {olive}%d{default} ]",
             g_EndNames[slot],
             g_EndStats[slot][Stat_Hunter],
             g_EndStats[slot][Stat_Smoker],
@@ -253,5 +286,4 @@ public Action Timer_PrintRoundStats(Handle timer, any serial)
             g_EndStats[slot][Stat_TankPunch],
             g_EndStats[slot][Stat_TankRock]);
     }
-    return Plugin_Stop;
 }
