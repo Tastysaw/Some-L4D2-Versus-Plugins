@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <multicolors>
 
-#define PLUGIN_VERSION "1.3.1"
+#define PLUGIN_VERSION "1.3.2"
 
 enum StatType
 {
@@ -21,6 +21,9 @@ enum StatType
 int g_Stats[MAXPLAYERS + 1][Stat_Count];
 bool g_bPrinted;
 bool g_bPrintPending;
+bool g_bRoundLive;
+int g_SurvivorUserId[MAXPLAYERS + 1];
+char g_SurvivorName[MAXPLAYERS + 1][MAX_NAME_LENGTH];
 int g_RoundSerial;
 int g_EndCount;
 char g_EndNames[4][MAX_NAME_LENGTH];
@@ -51,11 +54,17 @@ public void OnPluginStart()
     
     g_HasPullEvent = HookEventEx("tongue_pull_started", Event_Smoker);
     if (!g_HasPullEvent)
-        HookEvent("tongue_grab", Event_SmokerGrab);
+    HookEvent("tongue_grab", Event_SmokerGrab);
     HookEvent("jockey_ride", Event_Jockey);
     HookEvent("charger_carry_start", Event_ChargerHit);
     HookEventEx("charger_impact", Event_ChargerHit);
     HookEvent("player_hurt", Event_PlayerHurt);
+    HookEvent("player_spawn", Event_RememberSurvivor);
+    HookEvent("player_team", Event_RememberSurvivor);
+    HookEvent("player_left_start_area", Event_RoundLive, EventHookMode_PostNoCopy);
+    HookEvent("player_death", Event_CheckWipe);
+    HookEvent("player_incapacitated", Event_CheckWipe);
+    HookEvent("player_ledge_grab", Event_CheckWipe);
     ResetRound();
 }
 
@@ -72,6 +81,8 @@ public void OnMapEnd()
 public void OnClientDisconnect(int client)
 {
     ClearClient(client);
+    g_SurvivorUserId[client] = 0;
+    g_SurvivorName[client][0] = '\0';
     g_SmokerGrabSerial[client]++;
     for (int i = 1; i <= MaxClients; i++)
     {
@@ -92,11 +103,15 @@ void ResetRound()
     // its delayed print runs. Old timers are rejected by the round serial.
     PrintPendingRoundStats();
     g_bPrinted = false;
+    g_bRoundLive = false;
     g_RoundSerial++;
     g_EndCount = 0;
     for (int client = 1; client <= MaxClients; client++)
     {
         ClearClient(client);
+        g_SurvivorUserId[client] = 0;
+        g_SurvivorName[client][0] = '\0';
+        RememberSurvivor(client);
         g_SmokerGrabSerial[client]++;
         for (int victim = 1; victim <= MaxClients; victim++)
             g_LastChargeHit[client][victim] = 0.0;
@@ -119,6 +134,85 @@ bool IsHumanSurvivor(int client)
         && !IsFakeClient(client) && GetClientTeam(client) == 2;
 }
 
+// Keep this half's roster before players change teams. The user ID guard
+// prevents a reused client slot from displaying someone else's statistics.
+void RememberSurvivor(int client)
+{
+    if (g_bPrinted || !IsHumanSurvivor(client))
+        return;
+    int userid = GetClientUserId(client);
+    if (g_bRoundLive && g_SurvivorUserId[client] != userid)
+    {
+        int recorded = 0;
+        for (int i = 1; i <= MaxClients; i++)
+            if (g_SurvivorUserId[i] != 0 && IsClientInGame(i)
+                && GetClientUserId(i) == g_SurvivorUserId[i]) recorded++;
+        if (recorded >= 4) return;
+    }
+    if (g_SurvivorUserId[client] != userid)
+        ClearClient(client);
+    g_SurvivorUserId[client] = userid;
+    GetClientName(client, g_SurvivorName[client], sizeof(g_SurvivorName[]));
+}
+
+void MarkRoundLive()
+{
+    if (g_bRoundLive || g_bPrinted) return;
+    // round_start may precede team assignment; freeze the actual playing
+    // roster only once survivors leave spawn or the first attack occurs.
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        if (!IsHumanSurvivor(client))
+        {
+            g_SurvivorUserId[client] = 0;
+            g_SurvivorName[client][0] = '\0';
+        }
+        else RememberSurvivor(client);
+    }
+    g_bRoundLive = true;
+}
+
+public void Event_RememberSurvivor(Event event, const char[] name, bool dontBroadcast)
+{
+    RememberSurvivor(GetClientOfUserId(event.GetInt("userid")));
+}
+
+public void Event_RoundLive(Event event, const char[] name, bool dontBroadcast)
+{
+    if (!g_bPrinted && IsVersus())
+        MarkRoundLive();
+}
+
+public void Event_CheckWipe(Event event, const char[] name, bool dontBroadcast)
+{
+    int client = GetClientOfUserId(event.GetInt("userid"));
+    if (client < 1 || !IsClientInGame(client) || GetClientTeam(client) != 2)
+        return;
+    CheckTeamWipe();
+}
+
+void CheckTeamWipe()
+{
+    if (g_bPrinted || !g_bRoundLive || !IsVersus())
+        return;
+
+    int survivors = 0;
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        if (!IsClientInGame(client) || GetClientTeam(client) != 2)
+            continue;
+        survivors++;
+        RememberSurvivor(client);
+        // Bots are included: a standing bot can still rescue the team.
+        if (IsPlayerAlive(client)
+            && GetEntProp(client, Prop_Send, "m_isIncapacitated") == 0
+            && GetEntProp(client, Prop_Send, "m_isHangingFromLedge") == 0)
+            return;
+    }
+    if (survivors > 0)
+        FinishRound();
+}
+
 void AddVictimStat(Event event, StatType stat)
 {
     if (g_bPrinted || !IsVersus())
@@ -126,7 +220,11 @@ void AddVictimStat(Event event, StatType stat)
 
     int victim = GetClientOfUserId(event.GetInt("victim"));
     if (IsHumanSurvivor(victim))
+    {
+        RememberSurvivor(victim);
+        MarkRoundLive();
         g_Stats[victim][stat]++;
+    }
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -157,6 +255,8 @@ public void Event_SmokerGrab(Event event, const char[] name, bool dontBroadcast)
     int smoker = GetClientOfUserId(event.GetInt("userid"));
     if (!IsHumanSurvivor(victim) || smoker < 1 || smoker > MaxClients)
         return;
+    RememberSurvivor(victim);
+    MarkRoundLive();
     int serial = ++g_SmokerGrabSerial[victim];
     DataPack pack = new DataPack();
     pack.WriteCell(GetClientUserId(victim));
@@ -195,6 +295,8 @@ public void Event_ChargerHit(Event event, const char[] name, bool dontBroadcast)
     if (!IsHumanSurvivor(victim))
         return;
 
+    RememberSurvivor(victim);
+    MarkRoundLive();
     int charger = GetClientOfUserId(event.GetInt("userid"));
     if (charger < 1 || charger > MaxClients)
     {
@@ -217,18 +319,33 @@ public void Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
     if (!IsHumanSurvivor(victim))
         return;
 
+    RememberSurvivor(victim);
     char weapon[64];
     event.GetString("weapon", weapon, sizeof(weapon));
 
     if (StrEqual(weapon, "tank_claw", false))
+    {
+        MarkRoundLive();
         g_Stats[victim][Stat_TankPunch]++;
+    }
     else if (StrEqual(weapon, "tank_rock", false))
+    {
+        MarkRoundLive();
         g_Stats[victim][Stat_TankRock]++;
+    }
 }
 
 public void Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
     FinishRound();
+}
+
+// Capture before the director changes sides. Works with Left4DHooks or
+// Left4Downtown2; the public forward introduces no required native.
+public Action L4D2_OnEndVersusModeRound(bool countSurvivors)
+{
+    FinishRound();
+    return Plugin_Continue;
 }
 
 // Optional forward: provides a versus-specific end signal when Left4DHooks
@@ -243,15 +360,20 @@ void FinishRound()
     if (g_bPrinted || !IsVersus())
         return;
 
+    // Use this half's saved roster even if teams have already switched.
+    // Only initialize from current teams when no live roster exists yet.
+    if (!g_bRoundLive)
+        MarkRoundLive();
     g_bPrinted = true;
     g_EndCount = 0;
     for (int client = 1; client <= MaxClients && g_EndCount < 4; client++)
     {
-        if (!IsHumanSurvivor(client))
+        if (g_SurvivorUserId[client] == 0 || !IsClientInGame(client)
+            || GetClientUserId(client) != g_SurvivorUserId[client])
             continue;
 
         int slot = g_EndCount++;
-        GetClientName(client, g_EndNames[slot], sizeof(g_EndNames[]));
+        strcopy(g_EndNames[slot], sizeof(g_EndNames[]), g_SurvivorName[client]);
         for (int stat = 0; stat < view_as<int>(Stat_Count); stat++)
             g_EndStats[slot][stat] = g_Stats[client][stat];
     }
