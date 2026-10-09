@@ -22,7 +22,6 @@
 
  * <details><summary><b>额外插件</b></summary>
   * [l4d2_horde_counter](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_horde_counter) : 尸潮开始与结束提示
-
     * 触发尸潮事件时提示开始与结束，还有一个升级版是屏幕上实时显示当前小僵尸数量，但是还未上传于此（参考自坦克训练服）
 
   * [l4d2_witch_jockey_skill](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_witch_jockey_skill) : witch击杀技巧检测与推停jockey检测
