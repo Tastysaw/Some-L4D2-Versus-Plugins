@@ -20,43 +20,37 @@
 
 ----
 
- * <details><summary><b>额外插件</b></summary>
-  * [l4d2_horde_counter](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_horde_counter) : 尸潮开始与结束提示
+ 
+
+
+*  <details><summary><b>额外插件</b></summary>
+ * [l4d2_horde_counter](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_horde_counter) : 尸潮开始与结束提示
     * 触发尸潮事件时提示开始与结束，还有一个升级版是屏幕上实时显示当前小僵尸数量，但是还未上传于此（参考自坦克训练服）
-
-  * [l4d2_witch_jockey_skill](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_witch_jockey_skill) : witch击杀技巧检测与推停jockey检测
-
+* [l4d2_witch_jockey_skill](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_witch_jockey_skill) : witch击杀技巧检测与推停jockey检测
     * 对于Zonemod技巧检测的补充，witch的检测其实是Zonemod自带的那个没开罢了，制作这个插件的时候没注意，就这样吧
-
-  * [l4d2_tank_si_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_tank_si_stats) : 统计克局其他特感造成伤害量
-
+* [l4d2_tank_si_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_tank_si_stats) : 统计克局其他特感造成伤害量
     * 克局结束打印其他三人造成的伤害，谁在摸鱼！
-
-  * [l4d2_round_control_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_round_control_stats) : 统计生还被控次数
-
+* [l4d2_round_control_stats](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_round_control_stats) : 统计生还被控次数
     * 回合结束打印生还被控及吃拳饼数，看看谁最会防控
-
-  * [l4d2_rock_trail](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_rock_trail): 显示石头轨迹
-
+* [l4d2_rock_trail](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_rock_trail): 显示石头轨迹
     * 改编插件适配于药抗，可以在cfg里设置哪个阵营可见，默认特感+观察
-
-  * [l4d2_join_location](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_join_location): 加入与退出提示
+* [l4d2_join_location](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_join_location): 加入与退出提示
 
     * 显示玩家加入的城市和退出的原因，仿照Love平台制作的玩家加入与退出
    
 </details>
 
- * <details><summary><b>替换Zonemod插件</b></summary>
+ - <details><summary><b>替换Zonemod插件</b></summary>
  
-  * [readyup](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/readyup) : Zonemod readyup插件的中文增强版
+ - [readyup](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/readyup) : Zonemod readyup插件的中文增强版
 
     * 替换Zonemod原生readyup面板，带时长检测和双方得分
 
-  * [spechud](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/spechud) : Zonemod 坦克面板及观战面板中文增强版
+ - [spechud](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/spechud) : Zonemod 坦克面板及观战面板中文增强版
 
     * 带拳饼铁和总伤害显示
 
-  * [pause](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/pause) : Zonemod 暂停插件增强版
+ - [pause](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/pause) : Zonemod 暂停插件增强版
 
     * 增加了如果玩家闪退自动暂停这个玩家重连之后会自动解除暂停
 
