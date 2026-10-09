@@ -2,8 +2,10 @@
 
 ## 仅提供sp文件请自行编译，编译所需扩展应该均在Zonemod插件包里，请自行提取，没有的扩展应该都在以下插件提供了，不定期更新。
 
- 
- - [l4d2_horde_counter](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_horde_counter) 触发尸潮事件时打印将刷新多少小僵尸
+ <details>
+ <summary>- [l4d2_horde_counter](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_horde_counter) 触发尸潮事件时打印将刷新多少小僵尸</summary>
+
+  </details>
  - [l4d2_witch_jockey_skill](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_witch_jockey_skill) 对zonemod击杀witch和推停jockey的补充（可以用哈利公开的技巧检测替代）
  - [l4d2_join_location](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_join_location) 仿照Love平台制作的玩家加入与退出
  - [readyup](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/readyup) Zonemod readyup插件的中文增强版带分差及时长统计（仿照自曾经的萌新聚集地的readyup）
