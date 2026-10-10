@@ -57,9 +57,8 @@
   - [l4d_tank_control_eq](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d_tank_control_eq) : Zonemod坦克顺序增强版
 
     * !tanklist查询坦克顺序，!swaptank申请交换坦克顺序
-    
-> \[!WARNING]
-> 这个插件目前还没有经过实战测试，只进行了简单测试!
+    > \[!WARNING]
+    > 这个插件目前还没有经过实战测试，只进行了简单测试!
 
 
   
