@@ -1,0 +1,116 @@
+"Phrases"
+{
+    "TankList_Tag"
+    {
+        "en"    "{green}[Tank List]{default}"
+        "chi"   "{green}[坦克列表]{default}"
+    }
+    "TankList_Title"
+    {
+        "en"    "Tank 分配顺序："
+        "chi"   "Tank 分配顺序："
+    }
+    "TankList_Entry"
+    {
+        "#format"   "{1:d},{2:s}"
+        "en"    "{olive}{1}. {green}{2}"
+        "chi"   "{olive}{1}. {green}{2}"
+    }
+    "TankList_Uninitialized"
+    {
+        "en"    "坦克队列暂未初始化。"
+        "chi"   "坦克队列暂未初始化。"
+    }
+    "TankList_Empty"
+    {
+        "en"    "当前没有可查询的坦克顺序；准备阶段初始化后可再查询。"
+        "chi"   "当前没有可查询的坦克顺序；准备阶段初始化后可再查询。"
+    }
+    "TankList_Console"
+    {
+        "en"    "[TankList] 请在游戏中输入 !tanklist。"
+        "chi"   "[坦克列表] 请在游戏中输入 !tanklist。"
+    }
+    "TankSwap_Console"
+    {
+        "en" "请在游戏中输入 !swaptank。"
+        "chi" "请在游戏中输入 !swaptank。"
+    }
+    "TankSwap_ReadyOnly"
+    {
+        "en" "只能在准备阶段申请或确认换克。"
+        "chi" "只能在准备阶段申请或确认换克。"
+    }
+    "TankSwap_Initializing"
+    {
+        "en" "坦克顺序正在初始化，请稍后再试（回合开始约 10 秒）。"
+        "chi" "坦克顺序正在初始化，请稍后再试（回合开始约 10 秒）。"
+    }
+    "TankSwap_Ineligible"
+    {
+        "en" "双方必须是当前特感队伍中的真人玩家、在待分配队列中，且都没有扮演过坦克。"
+        "chi" "双方必须是当前特感队伍中的真人玩家、在待分配队列中，且都没有扮演过坦克。"
+    }
+    "TankSwap_Busy"
+    {
+        "en" "你或对方已有待处理的换克申请，请先处理或等待申请过期。"
+        "chi" "你或对方已有待处理的换克申请，请先处理或等待申请过期。"
+    }
+    "TankSwap_Override"
+    {
+        "en" "当前坦克由管理员或其他插件指定，暂时无法交换队列顺序。"
+        "chi" "当前坦克由管理员或其他插件指定，暂时无法交换队列顺序。"
+    }
+    "TankSwap_SelectTitle"
+    {
+        "en" "申请换克：请选择要交换顺序的队友"
+        "chi" "申请换克：请选择要交换顺序的队友"
+    }
+    "TankSwap_NoTarget"
+    {
+        "en" "当前没有符合条件的换克对象。"
+        "chi" "当前没有符合条件的换克对象。"
+    }
+    "TankSwap_ConfirmTitle"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "{1} 想与你交换坦克顺序。\n是否同意？（{2} 秒内有效）"
+        "chi" "{1} 想与你交换坦克顺序。\n是否同意？（{2} 秒内有效）"
+    }
+    "TankSwap_Accept"
+    {
+        "en" "同意换克"
+        "chi" "同意换克"
+    }
+    "TankSwap_Decline"
+    {
+        "en" "拒绝换克"
+        "chi" "拒绝换克"
+    }
+    "TankSwap_Sent"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "已向 {1} 发起换克申请，等待对方确认（{2} 秒）。"
+        "chi" "已向 {1} 发起换克申请，等待对方确认（{2} 秒）。"
+    }
+    "TankSwap_Cancelled"
+    {
+        "en" "换克申请已失效，请在准备阶段重新申请。"
+        "chi" "换克申请已失效，请在准备阶段重新申请。"
+    }
+    "TankSwap_Expired"
+    {
+        "en" "换克申请已超时，双方顺序未交换。"
+        "chi" "换克申请已超时，双方顺序未交换。"
+    }
+    "TankSwap_Declined"
+    {
+        "en" "换克申请已拒绝或关闭，双方顺序未交换。"
+        "chi" "换克申请已拒绝或关闭，双方顺序未交换。"
+    }
+    "TankSwap_Success"
+    {
+        "en" "换克成功！已交换双方的坦克顺序。"
+        "chi" "换克成功！已交换双方的坦克顺序。"
+    }
+}
