@@ -53,6 +53,12 @@
  - [pause](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/pause) : Zonemod 暂停插件增强版
 
     * 增加了如果玩家闪退自动暂停这个玩家重连之后会自动解除暂停
+  
+  - [l4d_tank_control_eq](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d_tank_control_eq) : Zonemod坦克顺序增强版
+
+    * !tanklist查询坦克顺序，!swaptank申请交换坦克顺序
+    > \[!WARNING]
+    > 这个插件目前还没有经过实战测试，只进行了简单测试!
 
 
   
