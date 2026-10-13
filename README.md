@@ -37,7 +37,11 @@
 * [l4d2_join_location](https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d2_join_location): 加入与退出提示
 
     * 显示玩家加入的城市和退出的原因，仿照Love平台制作的玩家加入与退出
-   
+
+ - [l4d_more_skill_report]((https://github.com/Tastysaw/Some-L4D2-Versus-Plugins/tree/main/l4d_more_skill_report) : 更多的技巧检测
+
+    * 改编自定制插件，所有不提供源码，参考清道夫模式的技巧检测，有常见的1撞多 1喷多之外还有速杀口水，显示打碎石头的距离，投石命中距离，口水点油，生还1v4，生还达成1v4必须连续击杀4特且队友不能造成伤害且必须在第一个被击杀的特感复活之前4kill
+  
 ----
 
  - <b>替换Zonemod插件</b>
@@ -59,6 +63,7 @@
     * !tanklist查询坦克顺序，!swaptank申请交换坦克顺序
     > \[!WARNING]
     > 这个插件经过实战测试暂未发现问题，但是列表里的坦克顺序并不是m1234，而是第一只第二只，比如m1你们出门团灭生还，第一人没玩到克那么他会顺延至m2的克!
+
 
 
   
