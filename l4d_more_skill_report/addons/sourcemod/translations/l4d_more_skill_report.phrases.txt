@@ -1,0 +1,102 @@
+// 放到 addons/sourcemod/translations/l4d_more_skill_report.phrases.txt
+// en 和 chi 默认均为中文；可自行编辑。保留 #format 参数类型与编号。
+// 聊天颜色沿用 multicolors。红/蓝/浅绿在同一条消息中只能选一种。
+"Phrases"
+{
+    "Skill_Charge"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "{green}{1} {olive}{2}{red} charge {green}{3}"
+        "chi" "{green}{1} {olive}{2}{red} 冲锋一撞 {green}{3}"
+    }
+    "Skill_Hittable"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "{green}{1} {olive}{2}{red} hittable {olive}{3}"
+        "chi" "{green}{1} {olive}{2}{red} 一铁压 {olive}{3}"
+    }
+    "Skill_Punch"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "{green}{1} {olive}{2}{red} punch {olive}{3}"
+        "chi" "{green}{1} {olive}{2}{red} 一拳拍 {olive}{3}"
+    }
+    "Skill_RockHit"
+    {
+        "#format" "{1:s},{2:.1f},{3:s}"
+        "en" "{green}★ {olive}{1}{red} throw rock {default}to {olive}{2}{default} m's {olive}{3}"
+        "chi" "{green}★ {olive}{1}{red} 投掷石头{default}命中 {olive}{2}{default} 米的 {olive}{3}"
+    }
+    "Skill_Vomit"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "{green}{1} {olive}{2}{red} boom {olive}{3}"
+        "chi" "{green}{1} {olive}{2}{red} 一吐 {olive}{3}"
+    }
+    "Skill_Explode"
+    {
+        "#format" "{1:s},{2:s},{3:d}"
+        "en" "{green}{1} {olive}{2}{red} deadboom {olive}{3}"
+        "chi" "{green}{1} {olive}{2}{red} 一炸 {olive}{3}"
+    }
+    "Skill_Capped"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "{green}{1} {red}SI cap {olive}{2}"
+        "chi" "{green}{1} {red}特感多控 {olive}{2}"
+    }
+    "Skill_Crown"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "{green}★★ {olive}{1} {red}crown{default} Witch {olive}[Dmg {2}]"
+        "chi" "{green}★★ {olive}{1} {red}秒杀了{default} Witch {olive}[伤害 {2}]"
+    }
+    "Skill_DrawCrown"
+    {
+        "#format" "{1:s},{2:d},{3:d}"
+        "en" "{green}★★★ {olive}{1} {red}draw crown{default} Witch {olive}[Final Dmg:{2} / Start Dmg:{3}]"
+        "chi" "{green}★★★ {olive}{1} {red}引秒了{default} Witch {olive}[最终伤害:{2} / 初始伤害:{3}]"
+    }
+    "Skill_JockeyShove"
+    {
+        "#format" "{1:s},{2:s}"
+        "en" "{green}★★ {olive}{1} {blue}deadstop {olive}{2}{default} (Jockey)"
+        "chi" "{green}★★ {olive}{1} {blue}推停了空中的 {olive}{2}{default} (Jockey)"
+    }
+    "Skill_RockBreak"
+    {
+        "#format" "{1:s},{2:.1f},{3:s}"
+        "en" "{green}★★ {olive}{1}{blue} skeet {olive}{2}{default} m from {olive}{3}{default} 's rock"
+        "chi" "{green}★★ {olive}{1}{blue} 打碎了距离 {olive}{2}{default} 米的 {olive}{3}{default} 投掷的石头"
+    }
+    "Skill_SpitterQuick"
+    {
+        "#format" "{1:s},{2:.1f},{3:s}"
+        "en" "{green}★★ {olive}{1}{blue} in {olive}{2}{default} seconds shut down {olive}{3}{default} (Spitter)"
+        "chi" "{green}★★ {olive}{1}{blue} 在 {olive}{2}{default} 秒内快速击杀了 {olive}{3}{default} (Spitter)"
+    }
+    "Skill_SpitterOil"
+    {
+        "#format" "{1:s},{2:d}"
+        "en" "{green}★★ {olive}{1}{red} fire {olive}{2}{default} oil"
+        "chi" "{green}★★ {olive}{1}{red} 点燃了 {olive}{2}{default} 桶油"
+    }
+    "Skill_GasSave"
+    {
+        "#format" "{1:s},{2:.1f},{3:d}"
+        "en" "{green}★★ {olive}{1}{blue} in {olive}{2}{default} seconds save {olive}{3}{default} oil from spit"
+        "chi" "{green}★★ {olive}{1}{blue} 在 {olive}{2}{default} 秒之内从酸液中救出 {olive}{3}{default} 桶汽油"
+    }
+    "Skill_GasBreak"
+    {
+        "#format" "{1:s}"
+        "en" "{green}★ {olive}{1}{blue} shoot {olive}a oil"
+        "chi" "{green}★ {olive}{1}{blue} 打爆了 {olive}一个油桶"
+    }
+    "Skill_SoloFour"
+    {
+        "#format" "{1:s}"
+        "en"  "{red}★★★★★ {olive}{1}{default} Aced a {red}1v4 !"
+        "chi" "{red}★★★★★ {olive}{1}{default} 完成 {red}1v4 !"
+    }
+}
