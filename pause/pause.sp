@@ -23,7 +23,7 @@
 #pragma newdecls required
 
 #include <sourcemod>
-#include <colors>
+#include <multicolors>
 #include <builtinvotes>
 #define L4D2UTIL_STOCKS_ONLY 1
 #include <l4d2util>
@@ -35,7 +35,7 @@ public Plugin myinfo =
     name = "Pause plugin",
     author = "CanadaRox, Sir, Forgetest, A1m`",
     description = "Adds pause functionality without breaking pauses, also prevents SI from spawning because of the Pause.",
-    version = "6.8.2",
+    version = "6.8.3-reconnect-fix",
     url = "https://github.com/SirPlease/L4D2-Competitive-Rework"
 };
 
@@ -99,7 +99,11 @@ StringMap playerPauseCount;
 // Used only for crash/auto pauses (adminPause && initiatorId == 0), so a
 // random spectator joining cannot release the pause.
 char g_sReconnectAuth[32];
-bool g_bReconnectMatch[MAXPLAYERS + 1];
+char g_sClientAuth64[MAXPLAYERS + 1][32];
+bool g_bFullyLoaded[MAXPLAYERS + 1];
+bool g_bReconnectCountdown;
+int g_iReconnectUserId;
+float g_fReconnectDropTime;
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -127,6 +131,8 @@ public void OnPluginStart()
     sv_pausable = FindConVar("sv_pausable");
     sv_noclipduringpause = FindConVar("sv_noclipduringpause");
 
+    RegAdminCmd("sm_pause_reconnect_status", ReconnectStatus_Cmd, ADMFLAG_GENERIC, "Show disconnect-pause reconnect state");
+
     RegConsoleCmd("sm_spectate", Spectate_Cmd, "Moves you to the spectator team");
     RegConsoleCmd("sm_spec", Spectate_Cmd, "Moves you to the spectator team");
     RegConsoleCmd("sm_s", Spectate_Cmd, "Moves you to the spectator team");
@@ -145,6 +151,14 @@ public void OnPluginStart()
 
     HookEvent("round_end", RoundEnd_Event, EventHookMode_PostNoCopy);
     HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
+    for (int client = 1; client <= MaxClients; client++)
+    {
+        if (IsClientInGame(client) && !IsFakeClient(client) && IsClientAuthorized(client))
+        {
+            CacheClientAuth64(client);
+            g_bFullyLoaded[client] = true;
+        }
+    }
 }
 
 // ======================================
@@ -177,19 +191,55 @@ void FindServerNamer()
 // ======================================
 // Forwards
 // ======================================
+public void OnClientConnected(int client)
+{
+    g_sClientAuth64[client][0] = '\0';
+    g_bFullyLoaded[client] = false;
+}
+
+void CacheClientAuth64(int client)
+{
+    if (client < 1 || client > MaxClients || !IsClientConnected(client) || IsFakeClient(client))
+        return;
+    char auth64[32];
+    if (GetClientAuthId(client, AuthId_SteamID64, auth64, sizeof(auth64), true))
+        strcopy(g_sClientAuth64[client], sizeof(g_sClientAuth64[]), auth64);
+}
+
 public void OnClientAuthorized(int client, const char[] auth)
 {
-    g_bReconnectMatch[client] = false;
+    // auth is Steam2/engine format, never compare it to a stored SteamID64.
+    CacheClientAuth64(client);
+    TryReconnectUnpause(client);
+}
 
-    // Only arm automatic unpause for a server/crash-style pause.
-    // A normal tactical/admin pause must still be released normally.
-    if (isPaused && adminPause && initiatorId == 0 && g_sReconnectAuth[0] != '\0')
-    {
-        if (StrEqual(auth, g_sReconnectAuth, false))
-        {
-            g_bReconnectMatch[client] = true;
-        }
-    }
+public void OnClientPostAdminCheck(int client)
+{
+    g_bFullyLoaded[client] = true;
+    CacheClientAuth64(client);
+    TryReconnectUnpause(client);
+}
+
+void TryReconnectUnpause(int client)
+{
+    if (!isPaused || !adminPause || initiatorId != 0 || RoundEnd || !g_sReconnectAuth[0] || g_bReconnectCountdown)
+        return;
+    if (client < 1 || client > MaxClients || !g_bFullyLoaded[client] || !IsClientInGame(client) || IsFakeClient(client))
+        return;
+    if (!g_sClientAuth64[client][0] || !StrEqual(g_sClientAuth64[client], g_sReconnectAuth))
+        return;
+
+    g_bReconnectCountdown = true;
+    g_iReconnectUserId = GetClientUserId(client);
+    LogMessage("Reconnect auto-unpause: steam=%s userid=%d fully_loaded=1", g_sReconnectAuth, g_iReconnectUserId);
+    InitiateLiveCountdown();
+}
+
+Action ReconnectStatus_Cmd(int client, int args)
+{
+    ReplyToCommand(client, "[Pause] paused=%d admin=%d initiator=%d waiting=%s auto_countdown=%d returning_userid=%d timer=%d",
+        isPaused, adminPause, initiatorId, g_sReconnectAuth, g_bReconnectCountdown, g_iReconnectUserId, readyCountdownTimer != null);
+    return Plugin_Handled;
 }
 
 public void OnClientPutInServer(int client)
@@ -199,33 +249,38 @@ public void OnClientPutInServer(int client)
         CPrintToChatAll("%t %t", "Tag", "ClientFullyLoaded", client);
         SetEntPropFloat(client, Prop_Data, "m_fLastPlayerTalkTime", 0.0);
 
-        // The exact player whose disconnect caused the crash/auto pause has
-        // finished loading. Start the same countdown used by sm_forceunpause.
-        if (g_bReconnectMatch[client] && adminPause && initiatorId == 0)
-        {
-            g_bReconnectMatch[client] = false;
-            g_sReconnectAuth[0] = '\0';
-            InitiateLiveCountdown();
-        }
+        // PutInServer alone does not guarantee Steam authorization is finished.
+        TryReconnectUnpause(client);
     }
 }
 
 public void OnClientDisconnect(int client)
 {
-    g_bReconnectMatch[client] = false;
+    if (g_bReconnectCountdown && GetClientUserId(client) == g_iReconnectUserId)
+    {
+        if (readyCountdownTimer != null)
+            delete readyCountdownTimer;
+        g_bReconnectCountdown = false;
+        g_iReconnectUserId = 0;
+        LogMessage("Reconnect auto-unpause cancelled: returning player disconnected again; waiting=%s", g_sReconnectAuth);
+    }
 
     // Remember only a real Survivor/Infected who drops while the game is live.
     // This prevents spectators leaving during an existing pause from replacing
     // the player we are actually waiting for.
-    if (!isPaused && client >= 1 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client))
+    if (!RoundEnd && client >= 1 && client <= MaxClients && IsClientInGame(client) && !IsFakeClient(client)
+        && (!readyUpIsAvailable || !IsInReady())
+        && (!isPaused || (adminPause && initiatorId == 0 && !g_sReconnectAuth[0] && GetEngineTime() - pauseTime <= 2.0)))
     {
         int team = GetClientTeam(client);
         if (team == L4D2Team_Survivor || team == L4D2Team_Infected)
         {
-            char auth[32];
-            if (GetClientAuthId(client, AuthId_SteamID64, auth, sizeof(auth), true))
+            CacheClientAuth64(client);
+            if (g_sClientAuth64[client][0])
             {
-                strcopy(g_sReconnectAuth, sizeof(g_sReconnectAuth), auth);
+                strcopy(g_sReconnectAuth, sizeof(g_sReconnectAuth), g_sClientAuth64[client]);
+                g_fReconnectDropTime = GetEngineTime();
+                LogMessage("Reconnect target saved: steam=%s team=%d paused=%d", g_sReconnectAuth, team, isPaused);
             }
         }
     }
@@ -239,6 +294,8 @@ public void OnClientDisconnect_Post(int client)
     }
 
     hiddenPanel[client] = false;
+    g_bFullyLoaded[client] = false;
+    g_sClientAuth64[client][0] = '\0';
 }
 
 public void OnMapEnd()
@@ -262,10 +319,8 @@ void RoundStart_Event(Event event, const char[] name, bool dontBroadcast)
     RoundEnd = false;
     initiatorId = 0;
     g_sReconnectAuth[0] = '\0';
-    for (int client = 1; client <= MaxClients; client++)
-    {
-        g_bReconnectMatch[client] = false;
-    }
+    g_bReconnectCountdown = false;
+    g_iReconnectUserId = 0;
 }
 
 // ======================================
@@ -333,6 +388,8 @@ Action ForcePause_Cmd(int client, int args)
     {
         adminPause = true;
         if (!client) {
+            if (GetEngineTime() - g_fReconnectDropTime > 5.0)
+                g_sReconnectAuth[0] = '\0';
             initiatorId = 0;
             CPrintToChatAll("%t %t", "Tag", "Crashed");
         }
@@ -517,6 +574,10 @@ Action DeferredPause_Timer(Handle timer)
 
 void Pause()
 {
+    g_bReconnectCountdown = false;
+    g_iReconnectUserId = 0;
+    if (!adminPause || initiatorId != 0)
+        g_sReconnectAuth[0] = '\0';
     for (int team; team < L4D2Team_Size; team++)
     {
         teamReady[team] = false;
@@ -582,10 +643,8 @@ void Unpause(bool real = true)
     isPaused = false;
     adminPause = false;
     g_sReconnectAuth[0] = '\0';
-    for (int client = 1; client <= MaxClients; client++)
-    {
-        g_bReconnectMatch[client] = false;
-    }
+    g_bReconnectCountdown = false;
+    g_iReconnectUserId = 0;
 	
     ToggleCommandListeners(false);
 
@@ -785,6 +844,9 @@ bool CheckFullReady()
 
 void CancelFullReady(int client)
 {
+    // The returning player's automatic countdown is a forced resume, not a team-ready vote.
+    if (g_bReconnectCountdown)
+        return;
     if (readyCountdownTimer != null)
     {
         delete readyCountdownTimer;
